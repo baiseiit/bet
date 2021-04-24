@@ -18,6 +18,7 @@ class CreateBetsTable extends Migration
             $table->unsignedBigInteger('match_id');
             $table->unsignedBigInteger('user_id');
             $table->integer('amount');
+            $table->float('coefficient');
             $table->enum('status', ['in_progress', 'loss', 'win'])->default('in_progress');
             $table->timestamps();
 
