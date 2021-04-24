@@ -30,12 +30,6 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function bets(Request $request)
-    {
-        $user = $this->auth($request->get('user_id'));
-        return response()->json($user->bets()->get());
-    }
-
     public function user(Request $request)
     {
         $user = $this->auth($request->get('user_id'));
