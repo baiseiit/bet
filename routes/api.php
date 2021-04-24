@@ -6,8 +6,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/register', 'App\Http\Controllers\UserController@register');
 Route::post('/auth/login', 'App\Http\Controllers\UserController@login');
-Route::get('/auth/user', 'App\Http\Controllers\UserController@user');
-Route::post('/auth/logout', 'App\Http\Controllers\UserController@logout');
+Route::post('/auth/logout', 'App\Http\Controllers\UserController@logout')
+    ->middleware(\App\Http\Middleware\AuthMiddleware::class);
 
-Route::get('/auth/user/bets', 'App\Http\Controllers\UserController@bets');
+Route::get('/user', 'App\Http\Controllers\UserController@user')
+    ->middleware(\App\Http\Middleware\AuthMiddleware::class);
+Route::get('/user/bets', 'App\Http\Controllers\UserController@bets')
+    ->middleware(\App\Http\Middleware\AuthMiddleware::class);
+Route::post('/user/box', 'App\Http\Controllers\UserController@openBox')
+    ->middleware(\App\Http\Middleware\AuthMiddleware::class);
+
 Route::get('/bets/rating', 'App\Http\Controllers\BetController@userRating');

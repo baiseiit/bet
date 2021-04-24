@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Libs\Box;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -32,28 +33,31 @@ class UserController extends Controller
     public function bets()
     {
         $user = $this->auth();
-
-        if (!isset($user)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Запрос требует авторизации'
-            ], 403);
-        }
-
         return response()->json($user->bets()->get());
     }
 
     public function user()
     {
         $user = $this->auth();
+        return response()->json($user);
+    }
 
-        if (!isset($user)) {
+    public function openBox()
+    {
+        $user = $this->auth();
+        $experience = $user->experience;
+
+        if ($experience % User::EXPERIENCE_IN_LEVEL !== 0) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Запрос требует авторизации'
+                'message' => 'У вас нет достаточно кол-во часов, чтобы получить сундук'
             ], 403);
         }
 
+        $data = $this->calcBoxValue($user);
+        $user = $user->updateData($user->id, $data);
+
+        $this->setUser($user);
         return response()->json($user);
     }
 
@@ -70,5 +74,47 @@ class UserController extends Controller
     public function setUser($user)
     {
         Session::put('user', $user);
+    }
+
+    private function calcBoxValue(User $user)
+    {
+        $boxTypes = Box::$types;
+        $box = $boxTypes[rand(0, count($boxTypes) - 1)];
+
+        $data = [];
+
+        switch ($box['name']) {
+            case 'bonus':
+                $data['bonus'] = $user->bonus + $box['value'];
+                break;
+            case 'win_cashback':
+                $data['bonus'] = $this->calcCashback(
+                    $user->bonus,
+                    $user->getLastWin()['amount'],
+                    $box['value']
+                );
+                break;
+            case 'loss_cashback':
+                $data['bonus'] = $this->calcCashback(
+                    $user->bonus,
+                    $user->getLastLoss()['amount'],
+                    $box['value']
+                );
+                break;
+            case 'exp':
+                $data['experience'] = $user->experience + $box['value'];
+        }
+
+        return $data;
+    }
+
+    private function calcCashback(int $bonus, int $betAmount, float $cashback)
+    {
+        return $bonus + $betAmount * $this->toDecimal($cashback);
+    }
+
+    private function toDecimal($percent)
+    {
+        return $percent / 100;
     }
 }

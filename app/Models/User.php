@@ -12,6 +12,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    const EXPERIENCE_IN_LEVEL = 1000;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -53,6 +55,20 @@ class User extends Authenticatable
         return $user;
     }
 
+    public static function updateData(int $id, array $data)
+    {
+        $user = User::find($id);
+        $user->name = $data['name'] ?? $user->name;
+        $user->email = $data['email'] ?? $user->email;
+        $user->password = $data['password'] ?? $user->password;
+        $user->money = $data['money'] ?? $user->money;
+        $user->bonus = $data['bonus'] ?? $user->bonus;
+        $user->experience = $data['experience'] ?? $user->experience;
+
+        $user->save();
+        return $user;
+    }
+
     public static function getByCredentials(array $data)
     {
         return User::where([
@@ -64,5 +80,15 @@ class User extends Authenticatable
     public function bets()
     {
         return $this->hasMany(Bet::class);
+    }
+
+    public function getLastLoss()
+    {
+        return $this->bets()->where('bets.status', 'loss')->get()->last();
+    }
+
+    public function getLastWin()
+    {
+        return $this->bets()->where('bets.status', 'win')->get()->last();
     }
 }
