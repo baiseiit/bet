@@ -43,12 +43,6 @@ class UserController extends Controller
         return response()->json($user->bets()->get());
     }
 
-    public function rating()
-    {
-        $users = User::fetchByCoefficient();
-        return response()->json($users);
-    }
-
     public function user()
     {
         $user = $this->auth();

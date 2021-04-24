@@ -13,4 +13,13 @@ class Bet extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    public static function fetchByCoefficient()
+    {
+        $sel = 'user_id, sum(coefficient) as coefficient';
+        $results = Bet::with('user')->selectRaw($sel)->groupBy('user_id')->
+        orderBy('coefficient', 'DESC')->get()->makeHidden('user_id');
+
+        return $results;
+    }
 }

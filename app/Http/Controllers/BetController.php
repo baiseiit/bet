@@ -7,4 +7,9 @@ use Illuminate\Http\Request;
 
 class BetController extends Controller
 {
+    public function userRating()
+    {
+        $users = Bet::fetchByCoefficient();
+        return response()->json($users);
+    }
 }
