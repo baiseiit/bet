@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -58,5 +59,19 @@ class User extends Authenticatable
             ['email', $data['email']],
             ['password', $data['password']],
         ])->first();
+    }
+
+    public function bets()
+    {
+        return $this->hasMany(Bet::class);
+    }
+
+    public static function fetchByCoefficient()
+    {
+        $sel = 'user_id, sum(coefficient) as coefficient';
+        $results = Bet::with('user')->selectRaw($sel)->groupBy('user_id')->
+        orderBy('coefficient', 'DESC')->get()->makeHidden('user_id');
+
+        return $results;
     }
 }

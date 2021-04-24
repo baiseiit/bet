@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class UserController extends Controller
 {
@@ -28,21 +29,52 @@ class UserController extends Controller
         return response()->json($user);
     }
 
+    public function bets()
+    {
+        $user = $this->auth();
+
+        if (!isset($user)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Запрос требует авторизации'
+            ], 403);
+        }
+
+        return response()->json($user->bets()->get());
+    }
+
+    public function rating()
+    {
+        $users = User::fetchByCoefficient();
+        return response()->json($users);
+    }
+
     public function user()
     {
-        session_start();
-        return $_SESSION['user'] ?: null;
+        $user = $this->auth();
+
+        if (!isset($user)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Запрос требует авторизации'
+            ], 403);
+        }
+
+        return response()->json($user);
+    }
+
+    public function auth()
+    {
+        return Session::has('user') ? Session::get('user') : null;
     }
 
     public function logout()
     {
-        session_start();
-        $_SESSION['user'] = null;
+        Session::forget('user');
     }
 
     public function setUser($user)
     {
-        session_start();
-        $_SESSION['user'] = $user;
+        Session::put('user', $user);
     }
 }
