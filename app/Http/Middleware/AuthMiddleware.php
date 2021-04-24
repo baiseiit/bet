@@ -20,10 +20,12 @@ class AuthMiddleware
         $isAuth = $this->isAuth();
 
         if (!$isAuth) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Запрос требует авторизации'
-            ], 403);
+            if (!$request->has('user_id')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Запрос требует авторизации'
+                ], 403);
+            }
         }
 
         return $next($request);

@@ -30,21 +30,21 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function bets()
+    public function bets(Request $request)
     {
-        $user = $this->auth();
+        $user = $this->auth($request->get('user_id'));
         return response()->json($user->bets()->get());
     }
 
-    public function user()
+    public function user(Request $request)
     {
-        $user = $this->auth();
+        $user = $this->auth($request->get('user_id'));
         return response()->json($user);
     }
 
-    public function openBox()
+    public function openBox(Request $request)
     {
-        $user = $this->auth();
+        $user = $this->auth($request->get('user_id'));
         $experience = $user->experience;
 
         if ($experience % User::EXPERIENCE_IN_LEVEL !== 0) {
@@ -61,9 +61,9 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function auth()
+    public function auth($userId)
     {
-        return Session::has('user') ? Session::get('user') : null;
+        return Session::get('user') ?? User::find($userId);
     }
 
     public function logout()
