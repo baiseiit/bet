@@ -82,6 +82,7 @@ class UserController extends Controller
         switch ($box['name']) {
             case 'bonus':
                 $data['bonus'] = $user->bonus + $box['value'];
+                $box['message'] = "Ура! Вы получили бонус в размере {$box['value']} тг";
                 break;
             case 'win_cashback':
                 if ($user->getLastWin()) {
@@ -90,10 +91,11 @@ class UserController extends Controller
                         $user->getLastWin()['amount'],
                         $box['value']
                     );
+                    $box['message'] = "Ура! Вы получили {$box['value']}% кэшбэка от вашего последнего выигрыша";
                 } else {
                     $data['bonus'] = $user->bonus + Box::$types[0]['value'];
-                    $box['name'] = 'bonus';
-                    $box['value'] = Box::$types[0]['value'];
+                    $bonus = Box::$types[0]['value'];
+                    $box['message'] = "Ура! Вы получили бонус в размере $bonus тг";
                 }
                 break;
             case 'loss_cashback':
@@ -103,18 +105,19 @@ class UserController extends Controller
                         $user->getLastLoss()['amount'],
                         $box['value']
                     );
+                    $box['message'] = "Ура! Вы получили {$box['value']}% кэшбэка от вашего последнего проигрыша";
                 } else {
                     $data['bonus'] = $user->bonus + Box::$types[0]['value'];
-                    $box['name'] = 'bonus';
-                    $box['value'] = Box::$types[0]['value'];
+                    $bonus = Box::$types[0]['value'];
+                    $box['message'] = "Ура! Вы получили бонус в размере $bonus тг";
                 }
                 break;
             case 'exp':
                 $data['experience'] = $user->experience + $box['value'];
+                $box['message'] = "Ура! Вы получили {$box['value']} exp";
         }
 
-        $data['box']['name'] = $box['name'];
-        $data['box']['value'] = $box['value'];
+        $data['message'] = $box['message'];
         return $data;
     }
 
