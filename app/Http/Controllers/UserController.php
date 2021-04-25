@@ -93,6 +93,7 @@ class UserController extends Controller
                 } else {
                     $data['bonus'] = $user->bonus + Box::$types[0]['value'];
                     $box['name'] = 'bonus';
+                    $box['value'] = Box::$types[0]['value'];
                 }
                 break;
             case 'loss_cashback':
@@ -105,13 +106,15 @@ class UserController extends Controller
                 } else {
                     $data['bonus'] = $user->bonus + Box::$types[0]['value'];
                     $box['name'] = 'bonus';
+                    $box['value'] = Box::$types[0]['value'];
                 }
                 break;
             case 'exp':
                 $data['experience'] = $user->experience + $box['value'];
         }
 
-        $data['box'] = $box['name'];
+        $data['box']['name'] = $box['name'];
+        $data['box']['value'] = $box['value'];
         return $data;
     }
 
