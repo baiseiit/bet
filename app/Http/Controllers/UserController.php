@@ -22,7 +22,7 @@ class UserController extends Controller
         if (empty($user)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Неправильно введенный адрес электронной почты или пароль'
+                'message' => 'Неправильно введен адрес электронной почты или пароль'
             ], 404);
         }
 
@@ -50,9 +50,11 @@ class UserController extends Controller
 
         $data = $this->calcBoxValue($user);
         $user = $user->updateData($user->id, $data);
-
         $this->setUser($user);
-        return response()->json($user);
+
+        $response = $data;
+        $response['user'] = $user;
+        return response()->json($response);
     }
 
     public function auth($userId)
@@ -82,23 +84,34 @@ class UserController extends Controller
                 $data['bonus'] = $user->bonus + $box['value'];
                 break;
             case 'win_cashback':
-                $data['bonus'] = $this->calcCashback(
-                    $user->bonus,
-                    $user->getLastWin()['amount'],
-                    $box['value']
-                );
+                if ($user->getLastWin()) {
+                    $data['bonus'] = $this->calcCashback(
+                        $user->bonus,
+                        $user->getLastWin()['amount'],
+                        $box['value']
+                    );
+                } else {
+                    $data['bonus'] = $user->bonus + Box::$types[0]['value'];
+                    $box['name'] = 'bonus';
+                }
                 break;
             case 'loss_cashback':
-                $data['bonus'] = $this->calcCashback(
-                    $user->bonus,
-                    $user->getLastLoss()['amount'],
-                    $box['value']
-                );
+                if ($user->getLastLoss()) {
+                    $data['bonus'] = $this->calcCashback(
+                        $user->bonus,
+                        $user->getLastLoss()['amount'],
+                        $box['value']
+                    );
+                } else {
+                    $data['bonus'] = $user->bonus + Box::$types[0]['value'];
+                    $box['name'] = 'bonus';
+                }
                 break;
             case 'exp':
                 $data['experience'] = $user->experience + $box['value'];
         }
 
+        $data['box'] = $box['name'];
         return $data;
     }
 
